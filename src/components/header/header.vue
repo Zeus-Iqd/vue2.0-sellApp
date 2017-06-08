@@ -29,30 +29,40 @@
     <div class="background">
       <img :src="seller.avatar" width="100%" height="100%">
     </div>
-    <div v-show="detailShow" class="detail">
-      <div class="detail-wrapper clearfix">
-        <div class="detail-main">
-          <h1 class="name">{{seller.name}}</h1>
-          <div class="star-wrapper">
-            <star :size="48" :score="seller.score"></star>
+    <transition name="fade">
+      <div v-show="detailShow" class="detail">
+        <div class="detail-wrapper clearfix">
+          <div class="detail-main">
+            <h1 class="name">{{seller.name}}</h1>
+            <div class="star-wrapper">
+              <star :size="48" :score="seller.score"></star>
+            </div>
+            <div class="title">
+              <div class="line"></div>
+              <div class="text">优惠信息</div>
+              <div class="line"></div>
+            </div>
+            <ul v-if="seller.supports" class="supports">
+              <li class="supports-item" v-for="(item,index) in seller.supports">
+                <span class="icon" :class="classMap[seller.supports[index].type]"></span>
+                <span class="text">{{item.description}}</span>
+              </li>
+            </ul>
+            <div class="title">
+              <div class="line"></div>
+              <div class="text">商家公告</div>
+              <div class="line"></div>
+            </div>
+            <div class="bulletin">
+              <p class="content">{{seller.bulletin}}</p>
+            </div>
           </div>
-          <div class="title">
-            <div class="line"></div>
-            <div class="text">优惠信息</div>
-            <div class="line"></div>
-          </div>
-          <ul v-if="seller.supports" class="supports">
-            <li class="supports-item" v-for="(item,index) in seller.supports">
-              <span class="icon" :class="classMap[seller.supports[index].type]"></span>
-              <span class="text">{{item.description}}1</span>
-            </li>
-          </ul>
+        </div>
+        <div class="detail-close" @click="hidden">
+          <div class="icon-close"></div>
         </div>
       </div>
-      <div class="detail-close">
-        <div class="icon-close"></div>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -72,6 +82,9 @@
     methods: {
       showDetail() {
         this.detailShow = true
+      },
+      hidden() {
+        this.detailShow = false
       }
     },
     created() {
@@ -132,7 +145,7 @@
             display: inline-block;
             width: 12px;
             height: 12px;
-            margin-right: 4px;
+            margin-right: 2px;
             background-size: 12px 12px;
             background-repeat: no-repeat;
             &.decrease {
@@ -229,10 +242,19 @@
       height: 100%;
       overflow: auto;
       background-color: rgba(7,17,27,.8);
+      backdrop-filter: blur(10px);/* 效果只在iphone手机上支持 */
+      &.fade-enter,&.fade-leave-to {
+        opacity: 0;
+        background-color: rgba(7,17,27,0);
+      }
+      &.fade-enter-active,&.fade-leave-active {
+        transition: all 0.5s;
+      }
       .detail-wrapper {
         min-height: 100%;
         width: 100%;
         .detail-main {
+          width: 100%;
           margin-top: 64px;
           padding-bottom: 64px;
           .name {
@@ -261,7 +283,7 @@
               font-weight: 700;
               font-size: 14px;
             }
-          },
+          }
           .supports {
             width: 80%;
             margin: 0 auto;
@@ -303,6 +325,16 @@
               
             }
           }
+          .bulletin {
+            width: 80%;
+            margin: 0 auto;
+            .content {
+              padding: 0 12px;
+              line-height: 24px;
+              font-size: 12px;
+            }
+          }
+
         }
       }
       .detail-close {

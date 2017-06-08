@@ -5,7 +5,8 @@ import App from './App'
 import router from './router'
 
 // Vue.prototype.$ajax = axios
-
+// 全部使用的filter
+import './filters/filters.js'
 import './commen/sass/index.scss'
 
 Vue.config.productionTip = false

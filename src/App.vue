@@ -6,7 +6,7 @@
       <router-link class="tab-item" to="/ratings" tag="div">评论</router-link>
       <router-link class="tab-item" to="/seller" tag="div">商家</router-link>
     </div>
-    <router-view></router-view>
+    <router-view :seller="seller"></router-view>
   </div>
 </template>
 
@@ -27,10 +27,8 @@
     },
     created() {
       axios.get('/api/seller').then((response) => {
-        this.seller = response.data
         if (response.data.errno === ERR_OK) {
           this.seller = response.data.data
-          console.log(this.seller)
         }
       })
     }
