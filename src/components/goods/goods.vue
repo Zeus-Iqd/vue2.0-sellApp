@@ -1,42 +1,45 @@
 <template>
-  <div class="goods">
-    <div class="menu-wrapper" ref="menu">
-      <ul>
-        <li v-for="(item,index) in goods" class="menu-item" :class="{'active':currentIndex===index}" @click="selectMenu(index,$event)">
-          <span class="text">
-            <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
-          </span>
-        </li>
-      </ul>
+  <div>
+    <div class="goods">
+      <div class="menu-wrapper" ref="menu">
+        <ul>
+          <li v-for="(item,index) in goods" class="menu-item" :class="{'active':currentIndex===index}" @click="selectMenu(index,$event)">
+            <span class="text">
+              <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div class="foods-wrapper" ref="foods">
+        <ul>
+          <li v-for="item in goods" class="food-list food-list-hook">
+            <h2 class="title">{{item.name}}</h2>
+            <ul>
+              <li @click="selectedFood(food,$event)" v-for="food in item.foods" class="food-item border-1px">
+                <div class="icon">
+                  <img width="57" height="57" :src="food.icon">
+                </div>
+                <div class="content">
+                  <h2 class="name">{{food.name}}</h2>
+                  <p class="desc">{{food.description}}</p>
+                  <div class="extra">
+                    <span class="count">月售{{food.sellCount}}份</span><span class="rating">好评率{{food.rating | percent}}</span>
+                  </div>
+                  <div class="price">
+                    <span class="now">{{food.price | format}}</span><span v-show="food.oldPrice"class="old">{{food.oldPrice | format}}</span>
+                  </div>
+                  <div class="carcontrol-wrapper">
+                    <cartcontrol :food="food" @cartarget="drop"></cartcontrol>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <shopcar :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" ref="shopcar"></shopcar>
     </div>
-    <div class="foods-wrapper" ref="foods">
-      <ul>
-        <li v-for="item in goods" class="food-list food-list-hook">
-          <h2 class="title">{{item.name}}</h2>
-          <ul>
-            <li v-for="food in item.foods" class="food-item border-1px">
-              <div class="icon">
-                <img width="57" height="57" :src="food.icon">
-              </div>
-              <div class="content">
-                <h2 class="name">{{food.name}}</h2>
-                <p class="desc">{{food.description}}</p>
-                <div class="extra">
-                  <span class="count">月售{{food.sellCount}}份</span><span class="rating">好评率{{food.rating | percent}}</span>
-                </div>
-                <div class="price">
-                  <span class="now">{{food.price | format}}</span><span v-show="food.oldPrice"class="old">{{food.oldPrice | format}}</span>
-                </div>
-                <div class="carcontrol-wrapper">
-                  <cartcontrol :food="food" @cartarget="drop"></cartcontrol>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-    <shopcar :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" ref="shopcar"></shopcar>
+    <food :food="selectFood" ref="food" @cartarget="drop"></food>
   </div>
 </template>
 
@@ -45,11 +48,13 @@
   import BScroll from 'better-scroll'
   import Shopcar from '../shopcar/shopcar'
   import Cartcontrol from '../cartControl/cartcontrol'
+  import Food from '../food/food'
   const ERR_OK = 0
   export default {
     components: {
       Shopcar,
-      Cartcontrol
+      Cartcontrol,
+      Food
     },
     props: {
       seller: {
@@ -61,7 +66,8 @@
         goods: [],
         listHeight: [],
         scrollY: 0,
-        target: null
+        target: null,
+        selectFood: {}
       }
     },
     computed: {
@@ -134,6 +140,13 @@
         this.$nextTick(() => {
           this.$refs.shopcar.drop(target)
         })
+      },
+      selectedFood(food, event) {
+        if (!event._constructed) {
+          return
+        }
+        this.selectFood = food
+        this.$refs.food.changeShowFlag()
       }
     }
   }
