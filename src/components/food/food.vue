@@ -17,15 +17,25 @@
           <div class="price">
             <span class="now">{{food.price | format}}</span><span v-show="food.oldPrice"class="old">{{food.oldPrice | format}}</span>
           </div>
-        </div>
-        <div class="cartcontrol-wrapper">
-          <cartcontrol :food="food" @cartarget="drop"></cartcontrol>
-        </div>
-        <transition name="fade">
-          <div class="buy" @click.stop="addFirst" v-show="toggle">
-            <span>加入购物车</span>
+          <div class="cartcontrol-wrapper">
+            <cartcontrol :food="food" @cartarget="drop"></cartcontrol>
           </div>
-        </transition>
+          <transition name="fade">
+            <div class="buy" @click.stop="addFirst" v-show="toggle">
+              <span>加入购物车</span>
+            </div>
+          </transition>
+        </div>
+        <split v-show="food.info"></split>
+        <div class="info" v-show="food.info">
+          <h2 class="title">商品信息</h2>
+          <p class="text">{{food.info}}</p>
+        </div>
+        <split></split>
+        <div class="rating">
+          <div class="title">商品评价</div>
+          <ratingselect :select-type="selectType" :only-content="true" :desc="desc" :ratings="food.ratings"></ratingselect>
+        </div>
       </div>
     </div>
   </transition>
@@ -35,6 +45,11 @@
 import Vue from 'vue'
 import BScroll from 'better-scroll'
 import Cartcontrol from '../cartControl/cartcontrol'
+import Split from '../split/split'
+import Ratingselect from '../ratingselect/ratingselect'
+// const POSITIVE = 0
+// const NEGATIVE = 0
+const ALL = 1
   export default {
     props: {
       food: {
@@ -43,15 +58,26 @@ import Cartcontrol from '../cartControl/cartcontrol'
     },
     data() {
       return {
-        showFlag: false
+        showFlag: false,
+        selectType: ALL,
+        onlyContent: true,
+        desc: {
+          all: '全部',
+          positive: '推荐',
+          negative: '吐槽'
+        }
       }
     },
     components: {
-      Cartcontrol
+      Cartcontrol,
+      Split,
+      Ratingselect
     },
     methods: {
       changeShowFlag() {
         this.showFlag = true
+        // this.selectType = ALL
+        // this.onlyContent = true
         this.$nextTick(() => {
           if (!this.scrool) {
             this.scrool = new BScroll(this.$refs.food, {
@@ -125,6 +151,7 @@ import Cartcontrol from '../cartControl/cartcontrol'
     }
     .content {
       padding: 18px;
+      position: relative;
       .title {
         line-height: 14px;
         font-size: 14px;
@@ -159,29 +186,55 @@ import Cartcontrol from '../cartControl/cartcontrol'
           color: rgb(147,153,159);
         }
       }
-    }
-    .cartcontrol-wrapper {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-    }
-    .buy {
-      position: absolute;
-      right: 18px;
-      bottom: 18px;
-      z-index: 10;
-      width: 148px;
-      height: 24px;
-      border-radius: 24px;
-      line-height: 24px;
-      text-align: center;
-      color: #fff;
-      background-color: rgb(0,160,220);
-      &.fade-enter,&.fade-leave-active {
-        opacity: 0;
+      .cartcontrol-wrapper {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
       }
-      &.fade-enter-active,&.fade-leave-active {
-        transition: all 1s;
+      .buy {
+        position: absolute;
+        right: 18px;
+        bottom: 18px;
+        z-index: 10;
+        width: 148px;
+        height: 24px;
+        border-radius: 24px;
+        line-height: 24px;
+        text-align: center;
+        color: #fff;
+        background-color: rgb(0,160,220);
+        &.fade-enter,&.fade-leave-active {
+          opacity: 0;
+        }
+        &.fade-enter-active,&.fade-leave-active {
+          transition: all 1s;
+        }
+      }
+    }
+    .info {
+      padding: 18px;
+      .title {
+        line-height: 14px;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgb(7,17,27);
+      }
+      .text {
+        line-height: 24px;
+        padding: 0 8px;
+        font-size: 12px;
+        color: rgb(77,85,93);
+      }
+    }
+    .rating {
+      padding-top: 18px;
+      .title {
+        line-height: 14px;
+        margin-left: 18px;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgb(7,17,27);
       }
     }
   }
