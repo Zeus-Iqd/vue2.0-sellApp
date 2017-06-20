@@ -6,7 +6,9 @@
       <router-link class="tab-item" to="/ratings" tag="div">评论</router-link>
       <router-link class="tab-item" to="/seller" tag="div">商家</router-link>
     </div>
-    <router-view :seller="seller"></router-view>
+    <keep-alive>
+      <router-view :seller="seller"></router-view>
+    </keep-alive>
   </div>
 </template>
 
@@ -14,21 +16,27 @@
   import myHeader from './components/header/header'
   // 如何全局使用axios
   import axios from 'axios'
+  import {urlParse} from './commen/js/util'
   const ERR_OK = 0
 
   export default {
     data() {
       return {
-        seller: {}
+        seller: {
+          id: (() => {
+            let queryParam = urlParse()
+            return queryParam.id
+          })()
+        }
       }
     },
     components: {
       vHeader: myHeader
     },
     created() {
-      axios.get('/api/seller').then((response) => {
+      axios.get('/api/seller?id=' + this.seller.id).then((response) => {
         if (response.data.errno === ERR_OK) {
-          this.seller = response.data.data
+          this.seller = Object.assign({}, this.seller, response.data.data)
         }
       })
     }

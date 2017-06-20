@@ -34,7 +34,24 @@
         <split></split>
         <div class="rating">
           <div class="title">商品评价</div>
-          <ratingselect :select-type="selectType" :only-content="true" :desc="desc" :ratings="food.ratings"></ratingselect>
+          <ratingselect :select-type="selectType" :only-content="onlyContent" :desc="desc" :rating="food.ratings" @select="changeSelect" @change="changeContent"></ratingselect>
+          <div class="rating-wrapper border-1px">
+            <ul v-show="food.ratings && food.ratings.length">
+              <li v-show="needShow(rating.rateType, rating.text)" v-for="rating in food.ratings" class="rating-item">
+                <div class="user">
+                  <span class="name">{{rating.username}}</span>
+                  <img :src="rating.avatar" class="avatar" width="12" height="12">
+                </div>
+                <div class="time">{{rating.rateTime | formatDate}}</div>
+                <p class="text">
+                  <span :class="{'icon-thumb_up':rating.rateType === 0,'icon-thumb_down':rating.rateType === 1}"></span><span>{{rating.text}}</span>
+                </p>
+              </li>
+            </ul>
+            <div class="no-rating" v-show="!food.ratings || !food.ratings.length">
+              <span>暂无评价</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -44,12 +61,11 @@
 <script>
 import Vue from 'vue'
 import BScroll from 'better-scroll'
+import {formatDateCommen} from '../../commen/js/date'
 import Cartcontrol from '../cartControl/cartcontrol'
 import Split from '../split/split'
 import Ratingselect from '../ratingselect/ratingselect'
-// const POSITIVE = 0
-// const NEGATIVE = 0
-const ALL = 1
+const ALL = 2
   export default {
     props: {
       food: {
@@ -76,11 +92,11 @@ const ALL = 1
     methods: {
       changeShowFlag() {
         this.showFlag = true
-        // this.selectType = ALL
-        // this.onlyContent = true
+        this.selectType = ALL
+        this.onlyContent = true
         this.$nextTick(() => {
-          if (!this.scrool) {
-            this.scrool = new BScroll(this.$refs.food, {
+          if (!this.scroll) {
+            this.scroll = new BScroll(this.$refs.food, {
               click: true
             })
           }
@@ -98,17 +114,46 @@ const ALL = 1
       },
       drop(target) {
         this.$emit('cartarget', target)
+      },
+      changeSelect(type) {
+        this.selectType = type
+        this.$nextTick(() => {
+          this.scroll.refresh()
+        })
+      },
+      changeContent(contentFlag) {
+        this.onlyContent = !this.onlyContent
+        this.$nextTick(() => {
+          this.scroll.refresh()
+        })
+      },
+      needShow(type, text) {
+        if (this.onlyContent && !text) {
+          return false
+        }
+        if (this.selectType === ALL) {
+          return true
+        } else {
+          return type === this.selectType
+        }
       }
     },
     computed: {
       toggle() {
         return !this.food.count || this.food.count === 0
       }
+    },
+    filters: {
+      formatDate(time) {
+        let date = new Date(time)
+        return formatDateCommen(date, 'yyyy-MM-dd hh:mm')
+      }
     }
   }
 </script>
 
 <style lang="scss">
+@import '../../commen/sass/mixin.scss';
   .food {
     position: fixed;
     left: 0;
@@ -235,6 +280,58 @@ const ALL = 1
         font-size: 14px;
         font-weight: 400;
         color: rgb(7,17,27);
+      }
+      .rating-wrapper {
+        padding: 0 18px;
+        .rating-item {
+          position: relative;
+          padding: 16px 18px;
+          @include border-1px(rgba(7,17,27,.1));
+          .user {
+            position: absolute;
+            right: 0;
+            top: 16px;
+            line-height: 12px;
+            font-size: 0;
+            .name {
+              display: inline-block;
+              margin-right: 6px;
+              vertical-align: top;
+              font-size: 10px;
+              color: rgb(147,153,159);
+            }
+            .avatar {
+              border-radius: 50%;
+            }
+          }
+          .time {
+            margin-bottom: 6px;
+            line-height: 12px;
+            font-size: 10px;
+            color: rgb(147,153,159);
+          }
+          .text {
+            line-height: 16px;
+            font-size: 12px;
+            color: rgb(7,17,27);
+            .icon-thumb_up, .icon-thumb_down {
+              line-height: 16px;
+              margin-right: 4px;
+              font-size: 12px;
+            }
+            .icon-thumb_up {
+              color: rgb(0,160,220)
+            }
+            .icon-thumb_down {
+              color: rgb(147,153,159)
+            }
+          }
+        }
+        .no-rating {
+          padding: 16px 0;
+          font-size: 12px;
+          color: rgb(147,153,159);
+        }
       }
     }
   }

@@ -149,19 +149,19 @@
             background-size: 12px 12px;
             background-repeat: no-repeat;
             &.decrease {
-              @include bg-image('decrease_1');
+              @include bg-image('./decrease_1');
             }
             &.discount {
-              @include bg-image('discount_1');
+              @include bg-image('./discount_1');
             }
             &.guarantee {
-              @include bg-image('guarantee_1');
+              @include bg-image('./guarantee_1');
             }
             &.invoice {
-              @include bg-image('invoice_1');
+              @include bg-image('./invoice_1');
             }
             &.special {
-              @include bg-image('special_1')
+              @include bg-image('./special_1')
             }
           }
           .text {

@@ -1,11 +1,11 @@
 <template>
   <div class="ratingselect">
     <div class="rating-type border-1px">
-      <span class="blod positive" :class="{'active':selectType===2}">{{desc.all}}<span class="count">47</span></span>
-      <span class="blod positive" :class="{'active':selectType===0}">{{desc.positive}}<span class="count">47</span></span>
-      <span class="blod negative" :class="{'active':selectType===1}">{{desc.negative}}<span class="count">47</span></span>
+      <span class="blod positive" @click="select(2,$event)" :class="{'active':selectTypeInstead===2}">{{desc.all}}<span class="count">{{rating.length}}</span></span>
+      <span class="blod positive" @click="select(0,$event)" :class="{'active':selectTypeInstead===0}">{{desc.positive}}<span class="count">{{positives.length}}</span></span>
+      <span class="blod negative" @click="select(1,$event)" :class="{'active':selectTypeInstead===1}">{{desc.negative}}<span class="count">{{negatives.length}}</span></span>
     </div>
-    <div class="switch">
+    <div @click="toggleContent" class="switch" :class="{'on':onlyContent}">
       <span class="icon-check_circle"></span>
       <span class="text">只看内容的评价</span>
     </div>
@@ -13,9 +13,9 @@
 </template>
 
 <script>
-  // const POSITIVE = 0
-  // const NEGATIVE = 0
-  const ALL = 1
+  const POSITIVE = 0
+  const NEGATIVE = 1
+  const ALL = 2
   export default {
     props: {
       rating: {
@@ -41,6 +41,40 @@
             negative: '不满意'
           }
         }
+      }
+    },
+    data() {
+      return {
+        selectTypeInstead: this.selectType,
+        onlyContentIntstead: this.onlyContent
+      }
+    },
+    methods: {
+      select(type, event) {
+        if (!event._constructed) {
+          return
+        }
+        this.selectTypeInstead = type
+        this.$emit('select', type)
+      },
+      toggleContent(even) {
+        if (!event._constructed) {
+          return
+        }
+        this.onlyContentIntstead = !this.onlyContentIntstead
+        this.$emit('change', this.onlyContentIntstead)
+      }
+    },
+    computed: {
+      positives() {
+       return this.rating.filter((rating) => {
+         return rating.rateType === POSITIVE
+       })
+      },
+      negatives() {
+        return this.rating.filter((rating) => {
+          return rating.rateType === NEGATIVE
+        })
       }
     }
   }
@@ -80,6 +114,29 @@
             background-color: rgb(77,85,93);
           }
         }
+      }
+    }
+    .switch {
+      padding: 12px 18px;
+      line-height: 24px;
+      border-bottom: 1px solid rgba(7,17,27,.1);
+      color: rgb(147,153,159);
+      font-size: 0;
+      &.on {
+        .icon-check_circle {
+          color: #00c580;
+        }
+      }
+      .icon-check_circle {
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 4px;
+        font-size: 24px;
+      }
+      .text {
+        display: inline-block;
+        vertical-align: top;
+        font-size: 12px;
       }
     }
   }
